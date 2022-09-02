@@ -2,13 +2,12 @@
 Base settings to build other settings files upon.
 """
 
+import base64
 import json
 from datetime import timedelta
 
 import environ
-from healthy_django.healthcheck.celery_queue_length import (
-    DjangoCeleryQueueLengthHealthCheck,
-)
+from authlib.jose import JsonWebKey
 from healthy_django.healthcheck.django_cache import DjangoCacheHealthCheck
 from healthy_django.healthcheck.django_database import DjangoDatabaseHealthCheck
 
@@ -424,8 +423,12 @@ OTP_MAX_REPEATS_WINDOW = (
 OTP_LENGTH = 5
 
 # ICD
-ICD_SCRAPER_ROOT_CONCEPTS_URL = "https://icd.who.int/browse11/l-m/en/JsonGetRootConcepts"
-ICD_SCRAPER_CHILD_CONCEPTS_URL = "https://icd.who.int/browse11/l-m/en/JsonGetChildrenConcepts"
+ICD_SCRAPER_ROOT_CONCEPTS_URL = (
+    "https://icd.who.int/browse11/l-m/en/JsonGetRootConcepts"
+)
+ICD_SCRAPER_CHILD_CONCEPTS_URL = (
+    "https://icd.who.int/browse11/l-m/en/JsonGetChildrenConcepts"
+)
 
 # SMS
 USE_SMS = False
@@ -534,3 +537,6 @@ CLOUD_REGION = env("CLOUD_REGION", default="ap-south-1")
 
 if CLOUD_PROVIDER not in csp_config.CSProvider.__members__:
     print(f"Warning Invalid CSP Found! {CLOUD_PROVIDER}")
+
+
+JWKS = JsonWebKey.import_key_set(json.loads(base64.b64decode(env("JWKS_BASE64"))))
